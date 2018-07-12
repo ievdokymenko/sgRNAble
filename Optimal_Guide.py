@@ -15,17 +15,17 @@ def Get_Sequence():
     i = 0
     Genome_Created = False
 
-
     for i in range(len(Program.Filetypes)):
         if not(Program.Filetypes[i] == 0):
             if(Program.Files[1][i] == "TARGET"):
                 Target = SeqIO.read(Program.Files[0][i], Program.Filetypes[0].get().lower())
             elif not(Genome_Created):
                 Genome = SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
+                Genome_Created = True
             else:
-                Genome  = Genome + SeqIO.read(Program.Files[0][i], Program.Filetypes[1].get().lower())
+                Genome  = Genome + SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
         else:
-            pass
+           pass
 
     return Target.seq.upper(), Genome.upper()
 
@@ -45,8 +45,6 @@ def PAM_Finder(Sequence, PAM, Direction):
     i = Temp_Sequence.find(PAM)
     if(i == -1):
         break
-    if(j > 10000):
-        break
     Position = Position + i + 2
     if(Position > Guide_RNA_length):
         if(Direction > 0):
@@ -58,7 +56,6 @@ def PAM_Finder(Sequence, PAM, Direction):
             Strand.append(Direction)
             Guide_RNAs.append(Sequence[Position+1:Position+21])
     Temp_Sequence = Temp_Sequence[i+2:]
-    j = j+1
 
   return Guide_RNAs,Location,Strand
 
