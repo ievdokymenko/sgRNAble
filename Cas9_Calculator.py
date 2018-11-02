@@ -328,7 +328,7 @@ if __name__ == "__main__":
 
 	guideSequence = 'TACGTACACAAGAGCTCTAG'
 
-	Cas9Calculator=clCas9Calculator(['../GenomeCalculations/NC_000913.gbk'])
+	Cas9Calculator=clCas9Calculator(['/Users/siddarthraghuvanshi/Documents/Code/CRISPR_Guide_RNA/Fasta_Files/GFP.fasta'])
 	sgRNA1 = sgRNA(guideSequences, Cas9Calculator)
 	sgRNA1.run()
 

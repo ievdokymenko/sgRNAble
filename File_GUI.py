@@ -2,6 +2,10 @@ from tkinter import *
 import numpy as np
 from tkinter.filedialog import askopenfilename
 import os
+from Bio.Alphabet import generic_dna
+from Bio import SeqIO
+from Bio.Seq import Seq
+
 
 class GUI(object):
 
@@ -98,12 +102,27 @@ class GUI(object):
         self.row += 1
 
 
-if __name__ == "__main__":
+def Get_Sequence():
 
     Root = Tk()
     Program = GUI(Root)
     Program.run()
     Root.mainloop()
-    print(Program.Files[1][0])
-    for Format in Program.Filetypes:
-        print(Format)
+    i = 0
+    Genome_Created = False
+
+    for i in range(len(Program.Filetypes)):
+        if not(Program.Filetypes[i] == 0):
+            if(Program.Files[1][i] == "TARGET"):
+                Target = SeqIO.read(Program.Files[0][i], Program.Filetypes[0].get().lower())
+            elif not(Genome_Created):
+                Genome = SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
+                Genome_Created = True
+            else:
+                Genome  = Genome + SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
+        else:
+           pass
+
+    Root.destroy()
+
+    return( Target.seq.upper(), Genome.upper())
