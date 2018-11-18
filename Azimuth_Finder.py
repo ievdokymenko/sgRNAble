@@ -50,9 +50,8 @@ def PAM_Finder(Sequence, PAM, Direction, Cutoff):
 
   #Trimming the extra basepairs need for the Azimuth Model from the Guide RNAs
   #so that they fit into the Salis Lab's modelself.
-
   for i in range(len(Guide_RNAs)):
-      Guide_RNAs[i] = Guide_RNAs[i][5:25]
+      Guide_RNAs[i] = Guide_RNAs[i][4:24]
 
   return Guide_RNAs,Location,Strand
 

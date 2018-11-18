@@ -11,54 +11,6 @@ from File_GUI import Get_Sequence
 #Length of the Guide RNA desired
 Guide_RNA_length = 20
 
-#Find the Guide RNAs in a Sequence
-def PAM_Finder(Sequence, PAM, Direction):
- Guide_RNAs = []
- Location = []
- Strand = []
-
- Position = 0
- Temp_Sequence = Sequence
- if(Direction < 0):
-   PAM = str(Seq(PAM).reverse_complement())
-   print(PAM)
- while True:
-   i = Temp_Sequence.find(PAM)
-   if(i == -1):
-       break
-   if((len(Temp_Sequence)-i) < Guide_RNA_length):
-       break
-   Position = Position + i + 1
-   if(Position > Guide_RNA_length):
-       if(Direction > 0):
-           Location.append(Position - 2)
-           Strand.append(Direction)
-           Guide_RNAs.append(Sequence[Position-26:Position+4])
-       if(Direction < 0):
-           Location.append(Position + 1)
-           Strand.append(Direction)
-           Guide_RNAs.append(Sequence[Position-4:Position+26])
-   Temp_Sequence = Temp_Sequence[i+1:]
-
- if(Direction < 0):
-     for i in range(len(Guide_RNAs)):
-         Guide_RNAs[i] = str(Guide_RNAs[i].reverse_complement())
- #predictions = model_comparison.predict(np.array(Guide_RNAs))
-
- #Sorting the Guides based on the Azimuth scores and then only selecting the
- #top number of guides as defined by the Azimuth Cutoff
- #Guide_RNAs = [x for y,x in sorted(zip(predictions,Guide_RNAs))][:Azimuth_Cutoff]
- #Location = [x for y,x in sorted(zip(predictions,Location))][:Azimuth_Cutoff]
- #Strand = [x for y,x in sorted(zip(predictions,Strand))][:Azimuth_Cutoff]
-
- #Trimming the extra basepairs need for the Azimuth Model from the Guide RNAs
- #so that they fit into the Salis Lab's modelself.
-
- for i in range(len(Guide_RNAs)):
-     Guide_RNAs[i] = Guide_RNAs[i][5:25]
-
- return Guide_RNAs,Location,Strand
-
 #Combine the Coding and Template Strands into a single strand
 def CombinetoStr (Template_Guides, Coding_Guides):
   Guides = []
@@ -95,7 +47,7 @@ SeqIO.write(Genome, "Total_Genome_Plus_RC", "fasta")
 #Obtain the Guide RNAs from the Target Sequence
 from Azimuth_Finder import * #placed here to avoid multithreading issues with Tkinter *I think
 PAM = "GG"
-Guide_Num_Cutoff = 20
+Guide_Num_Cutoff = 20 # Cutoff per strand
 
 T_Guides_Pos, Position_Pos, Direction_Pos,T_Guides_Neg, Position_Neg, Direction_Neg  = Azimuth_Guides(Target_Seq, PAM,Guide_Num_Cutoff )
 
