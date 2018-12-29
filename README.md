@@ -16,7 +16,7 @@ Place the Azimuth Folder in the Anaconda Folder in /lib/python3.6/site-packages/
 
 If Azimuth is previously installed, replace the folder (Converting the program from Python v2 to v3)
 
-# How to use
+## How to use
 Ensure that you have a Fasta or Genebank file containing the gene of interest (Target Sequence), the genome of the organism (Genome), and any additional DNA present(Plasmids/Fosmids). The gene of interest must be present in the genome or the other additional DNA added to the script.
 
 navigate to the folder in terminal and type in
