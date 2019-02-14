@@ -1,7 +1,7 @@
 import numpy as np
 import sklearn.linear_model
 import sklearn.ensemble as en
-from sklearn.grid_search import GridSearchCV
+from sklearn.model_selection import GridSearchCV
 import sklearn
 from sklearn.linear_model import LinearRegression
 import scipy as sp
@@ -9,8 +9,8 @@ from .regression import linreg_on_fold
 import sklearn
 import sklearn.tree as tree
 from sklearn import svm
-from sklearn.grid_search import GridSearchCV
-from sklearn.cross_validation import cross_val_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import cross_val_score
 
 def spearman_scoring(clf, X, y):
     y_pred = clf.predict(X).flatten()

@@ -49,16 +49,55 @@ def PAM_Finder(Sequence, PAM, Direction, Cutoff):
   Strand = [x for y,x in sorted(zip(predictions,Strand))][:Azimuth_Cutoff]
 
   #Trimming the extra basepairs need for the Azimuth Model from the Guide RNAs
-  #so that they fit into the Salis Lab's modelself.
+  #so that they fit into the Salis Lab's model.
   for i in range(len(Guide_RNAs)):
       Guide_RNAs[i] = Guide_RNAs[i][4:24]
 
   return Guide_RNAs,Location,Strand
 
-def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff):
+def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
 
-    Gene1,Location1,Direction1 = PAM_Finder(Gene_Seq, PAM_Seq, 1,Guides_Cutoff)
-    Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
+    if (Usage == 0):
+        Gene1,Location1,Direction1 = PAM_Finder(Gene_Seq, PAM_Seq, 1,Guides_Cutoff)
+        Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
+
+        Position = Position1 + Position2
+        Direction = Direction1 + Direction2
+
+        #Combine the two guides
+        Guides = CombinetoStr(Gene1, Gene2)
+
+        return Guides, Position, Direction
+
+    elif (Usage == 1):
+
+        Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
+
+        return Gene2, Location2, Direction2
 
 
-    return Gene1,Location1,Direction1,Gene2,Location2,Direction2
+    else:
+
+        Gene1,Location1,Direction1 = PAM_Finder(Gene_Seq, PAM_Seq, 1,Guides_Cutoff)
+        Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
+
+        for i in range(len(Location1)):
+            if (Location1[i] > Usage):
+                Location1 = Location1[:i]
+                Gene1 = Gene1[:1]
+                Direction1 = Direction1[:i]
+
+        for i in range(len(Location2)):
+            if (Location2[i] > Usage):
+                Location2 = Location2[:i]
+                Gene2 = Gene2[:1]
+                Direction2 = Direction2[:i]
+
+
+        Position = Position1 + Position2
+        Direction = Direction1 + Direction2
+
+        #Combine the two guides
+        Guides = CombinetoStr(Gene1, Gene2)
+
+        return Guides, Position, Direction

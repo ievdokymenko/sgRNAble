@@ -2,7 +2,7 @@ import numpy as np
 import sklearn
 from sklearn.metrics import roc_curve, auc
 import sklearn.metrics
-import sklearn.cross_validation
+import sklearn.model_selection
 import copy
 from . import util
 import time

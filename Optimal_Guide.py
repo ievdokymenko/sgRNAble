@@ -11,6 +11,9 @@ from File_GUI import Get_Sequence
 #Length of the Guide RNA desired
 Guide_RNA_length = 20
 
+#Whether the CRISPR program is being used for CRIi (1) or CRIa (n) or normal/wt (0)
+Usage = 1 # length of Amplification range user would like
+
 #Combine the Coding and Template Strands into a single strand
 def CombinetoStr (Template_Guides, Coding_Guides):
   Guides = []
@@ -49,15 +52,10 @@ from Azimuth_Finder import * #placed here to avoid multithreading issues with Tk
 PAM = "GG"
 Guide_Num_Cutoff = 20 # Cutoff per strand
 
-T_Guides_Pos, Position_Pos, Direction_Pos,T_Guides_Neg, Position_Neg, Direction_Neg  = Azimuth_Guides(Target_Seq, PAM,Guide_Num_Cutoff )
+Target_Guides, Direction_List, Position_List  = Azimuth_Guides(Target_Seq, PAM,Guide_Num_Cutoff, Usage )
 
 #Combine the information from the Guide RNAs into one single array.
-Position_List = Position_Pos + Position_Neg
-Direction_List = Direction_Pos + Direction_Neg
 Guide_Info = np.vstack((Position_List, Direction_List)).T
-
-#Combine the two guides
-Target_Guides = CombinetoStr(T_Guides_Pos, T_Guides_Neg)
 
 #Send Data to the model
 Cas9Calculator=clCas9Calculator(['Total_Genome_Plus_RC'])
