@@ -7,7 +7,6 @@ from Bio.Seq import Seq
 from Cas9_Calculator import *
 from File_GUI import Get_Sequence
 
-
 #Length of the Guide RNA desired
 Guide_RNA_length = 20
 
@@ -42,17 +41,17 @@ def ReverseComplement(nucleotide_sequence):
   rev_comp = ''.join(reversed(comp))
   return rev_comp
 
-Target_Seq, Genome = Get_Sequence()
+Target_Seqs, Genome = Get_Sequence()
 
 Genome = Genome + Genome.reverse_complement()
 SeqIO.write(Genome, "Total_Genome_Plus_RC", "fasta")
 
 #Obtain the Guide RNAs from the Target Sequence
-from Azimuth_Finder import * #placed here to avoid multithreading issues with Tkinter *I think
+from Azimuth_Finder import * #placed here to avoid multithreading issues with Tkinter (I think)
 PAM = "GG"
 Guide_Num_Cutoff = 20 # Cutoff per strand
 
-Target_Guides, Direction_List, Position_List  = Azimuth_Guides(Target_Seq, PAM,Guide_Num_Cutoff, Usage )
+Target_Guides, Position_List, Direction_List = Azimuth_Guides(Target_Seqs, PAM,Guide_Num_Cutoff, Usage )
 
 #Combine the information from the Guide RNAs into one single array.
 Guide_Info = np.vstack((Position_List, Direction_List)).T

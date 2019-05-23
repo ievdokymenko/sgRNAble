@@ -14,6 +14,7 @@ class GUI(object):
         self.Files = [[]]
         self.Files.append([])
         self.Filetypes = []
+        self.Use = 0
         self.num_of_Additional = 0
         self.Win = Master
 
@@ -33,7 +34,7 @@ class GUI(object):
     def Add(self):
         self.Done.grid(row = self.row + 3, column = 0, pady = 50)
         self.A_Seq.grid(row = self.row + 2, column = 0, pady = 0,)
-        self.Organizer("Additional Sequnce", "R")
+        self.Organizer("Additional Sequence", "R")
         self.row += 3
 
     def Get_Rid(self,Frame, Prompt, index):
@@ -52,10 +53,19 @@ class GUI(object):
         Prompt.grid(row = self.row, column = 0,pady = 5, padx = 100)
         self.row += 1
 
+        #If this is a purpose structure, run this code.
+        if (Type == "PURPOSE"):
+            Uses = ["CRISPRi on a Gene", "CRISPRi Screening", "CRISPRa on a Gene"]
+            Uses_Var = StringVar(self.Win)
+            Uses_Var.set("CRISPRi on a Gene")
+            self.Use = Uses_Var
+            Purpose_Menu = OptionMenu(F, Uses_Var, *Uses)
+            Purpose_Menu.grid(row = 0, column = 2)
+
         #IF this is an add button, follow this code to display it
-        if (Type == "ADD"):
+        elif (Type == "ADD"):
             More = Button(F,text = "Add More", command = self.Add)
-            More.grid(row = self.row, column = 0)
+            More.grid(row = self.row, column = 2)
             self.row += 1
 
         #IF this isn't an add button, run this code to display the buttons
@@ -77,12 +87,15 @@ class GUI(object):
                 self.row += 1
                 self.num_of_Additional += 1
 
-
         return F
 
     def run(self):
 
         self.Win.title("Guide RNA Finder")
+
+        self.Purpose = self.Organizer("Please select the purpose of this run", "PURPOSE")
+        self.Purpose.grid(row = self.row, column = 0)
+        self.row += 1
 
         self.T_Seq = self.Organizer("Please select the Target Sequence File", "TARGET")
         self.T_Seq.grid(row = self.row, column = 0)
@@ -114,7 +127,9 @@ def Get_Sequence():
     for i in range(len(Program.Filetypes)):
         if not(Program.Filetypes[i] == 0):
             if(Program.Files[1][i] == "TARGET"):
-                Target = SeqIO.read(Program.Files[0][i], Program.Filetypes[0].get().lower())
+                Targets = []
+                for contig in SeqIO.parse(Program.Files[0][i], Program.Filetypes[0].get().lower()):
+                    Targets.append(contig)
             elif not(Genome_Created):
                 Genome = SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
                 Genome_Created = True
@@ -125,4 +140,6 @@ def Get_Sequence():
 
     Root.destroy()
 
-    return( Target.seq.upper(), Genome.upper())
+    print(Program.Use.get())
+
+    return( Targets, Genome.upper(), Program.Use.get())

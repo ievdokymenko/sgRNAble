@@ -2,8 +2,6 @@ from Azimuth_Model import model_comparison
 import numpy as np
 from Bio.Seq import Seq
 
-
-
 def PAM_Finder(Sequence, PAM, Direction, Cutoff):
   Guide_RNAs = []
   Location = []
@@ -61,7 +59,7 @@ def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
         Gene1,Location1,Direction1 = PAM_Finder(Gene_Seq, PAM_Seq, 1,Guides_Cutoff)
         Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
 
-        Position = Position1 + Position2
+        Position = Location1 + Location2
         Direction = Direction1 + Direction2
 
         #Combine the two guides
@@ -94,7 +92,7 @@ def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
                 Direction2 = Direction2[:i]
 
 
-        Position = Position1 + Position2
+        Position = Location1 + Location2
         Direction = Direction1 + Direction2
 
         #Combine the two guides
