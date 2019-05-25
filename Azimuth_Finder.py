@@ -1,6 +1,7 @@
 from Azimuth_Model import model_comparison
 import numpy as np
 from Bio.Seq import Seq
+from bisect import bisect_left
 
 def PAM_Finder(Sequence, PAM, Direction, Cutoff):
   Guide_RNAs = []
@@ -55,24 +56,62 @@ def PAM_Finder(Sequence, PAM, Direction, Cutoff):
 
 def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
 
-    if (Usage == 0):
-        Gene1,Location1,Direction1 = PAM_Finder(Gene_Seq, PAM_Seq, 1,Guides_Cutoff)
-        Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
+    if (Usage == "CRISPRi Screening"):
+        Position = []
+        Direction = []
+        Contig_Name = []
+        Guides = []
+        Frames = [1,2,3,-1,-2,-3]
+        Stop_Codons = ["TAG","TGA","TAA"]
+        Met = "ATG"
+        Reverse_Met = "TAC"
+        Start_Codons = [0]
+        Reverse_Start_Condons = [0]
+        ORFs = []
+        ORF_Cutoff = 1000
+        Location_in_Contig = 0
+        Distance_to_Nearest_Met = []
 
-        Position = Location1 + Location2
-        Direction = Direction1 + Direction2
+        Guides_Cutoff = 10
 
-        #Combine the two guides
-        Guides = CombinetoStr(Gene1, Gene2)
+        for Contig in Gene_Seq:
+            for Frame in Frames:
+                Contig_Frame = Contig[abs(Frame)-1:]
+                if Frame < 0:
+                    Contig_Frame = Contig[abs(Frame)-1:].reverse_complement()
+                for i in range(len(Contig_Frame)):
+                    if str(Contig_Frame[i*3:i*3+3].seq) in Met:
+                        Start_Codons.append(i*3)
 
-        return Guides, Position, Direction
+                    if str(Contig_Frame[i*3:i*3+3].seq) in Reverse_Met:
+                        Reverse_Start_Condons.append(i*3)
 
-    elif (Usage == 1):
+                    if Contig_Frame[i*3:(i*3)+3].seq in Stop_Codons:
 
-        Gene2,Location2,Direction2 = PAM_Finder(Gene_Seq, PAM_Seq, -1,Guides_Cutoff)
+                        if(i*3-Location_in_Contig) > ORF_Cutoff and Location_in_Contig != 0:
+                            Gene1, Location1, Direction1 = PAM_Finder(Contig_Frame[Location_in_Contig:(i*3)+3].seq, PAM_Seq, 1,Guides_Cutoff)
+                            Position.append(Location1)
+                            Direction.append(Direction1)
+                            Meth_Distances = []
+                            for Loc in Location1:
+                                if Frame > 0:
+                                    Meth_Distances.append(ClosestDiff(Start_Codons,Loc+Location_in_Contig))
+                                else:
+                                    Meth_Distances.append(ClosestDiff(Reverse_Start_Condons,Loc+Location_in_Contig))
+                            Distance_to_Nearest_Met.append(Meth_Distances)
+                            Guides.append(Gene1)
+                            ORFs.append(Contig_Frame[Location_in_Contig:(i*3)+3].seq)
+                        Location_in_Contig = i*3
+                Location_in_Contig = 0
+            Contig_Name.append(Contig.id)
 
-        return Gene2, Location2, Direction2
+        return Guides, Position, Direction, Contig_Name, Distance_to_Nearest_Met, ORFs
 
+    elif (Usage == "CRISPRi on a Gene"):
+        for Gene in Gene_Seq:
+            Gene,Location,Direction = PAM_Finder(Gene.seq.upper(), PAM_Seq, -1,Guides_Cutoff)
+
+        return Gene, Location, Direction, 0 ,0, 0
 
     else:
 
@@ -91,11 +130,20 @@ def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
                 Gene2 = Gene2[:1]
                 Direction2 = Direction2[:i]
 
-
         Position = Location1 + Location2
         Direction = Direction1 + Direction2
 
         #Combine the two guides
         Guides = CombinetoStr(Gene1, Gene2)
 
-        return Guides, Position, Direction
+        return Guides, Position, Direction, 0, 0, 0
+
+def ClosestDiff(myList, myNumber):
+    pos = bisect_left(myList, myNumber)
+    if pos == 0:
+        return ["NA",(myNumber - myList[pos + 1])]
+    if pos == len(myList):
+        return [(myNumber - myList[pos - 1 ]),"NA"]
+    before = myList[pos - 1]
+    after = myList[pos]
+    return [(myNumber - before),(myNumber - after)]

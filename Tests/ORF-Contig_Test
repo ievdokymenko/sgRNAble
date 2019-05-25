@@ -1,17 +1,21 @@
 from Bio import SeqIO
 
-table = 11
-min_pro_len = 100
-
 #Contig Solving
 List = []
+
 for record in SeqIO.parse("all_PPS_contigs 1.fasta", "fasta"):
     List.append(record)
     #ORF
-    for strand, nuc in [(+1, record.seq), (-1, record.seq.reverse_complement())]:
-         for frame in range(3):
-             length = 3 * ((len(record)-frame) // 3) #Multiple of three
-             for pro in nuc[frame:frame+length].translate(table).split("*"):
-                 if len(pro) >= min_pro_len:
-                     #print("%s...%s - length %i, strand %i, frame %i" \% (pro[:30], pro[-3:], len(pro), strand, frame))
-                     print(len(pro))
+for Contig in List:
+    for Frame in Frames:
+        Contig_Frame = Contig[Frame:]
+        print()
+        for i in range(len(Contig_Frame)):
+            if Contig_Frame[i*3:(i*3)+3].seq in Stop_Codons:
+                if(i*3-Location) > ORF_Cutoff and Location != 0:
+                    ORFs.append(str(Contig_Frame[Location:(i*3)+3].seq))
+                Location = i*3
+            if Contig_Frame[i*3:i*3+3].seq == Met:
+                Start_Codons.append(i)
+        Location = 0
+        print(ORFs)

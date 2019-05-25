@@ -101,7 +101,7 @@ class GUI(object):
         self.T_Seq.grid(row = self.row, column = 0)
         self.row += 1
 
-        self.G_Seq = self.Organizer("Please select the Genome Sequence File", "GENOME")
+        self.G_Seq = self.Organizer("Please select the Genome Sequence File (Not Required for Screening)", "GENOME")
         self.G_Seq.grid(row = self.row, column = 0)
         self.row += 1
 
@@ -130,6 +130,9 @@ def Get_Sequence():
                 Targets = []
                 for contig in SeqIO.parse(Program.Files[0][i], Program.Filetypes[0].get().lower()):
                     Targets.append(contig)
+            if(Program.Use.get() == "CRISPRi Screening"):
+                Genome = None
+                break
             elif not(Genome_Created):
                 Genome = SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
                 Genome_Created = True
@@ -140,6 +143,8 @@ def Get_Sequence():
 
     Root.destroy()
 
+    print("\n\n")
     print(Program.Use.get())
+    print("\n\n")
 
-    return( Targets, Genome.upper(), Program.Use.get())
+    return( Targets, Genome, Program.Use.get())
