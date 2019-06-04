@@ -117,7 +117,7 @@ def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
         for Gene in Gene_Seq:
             Gene,Location,Direction, Azimuth_Score = PAM_Finder(Gene.seq.upper(), PAM_Seq, -1,Guides_Cutoff)
 
-        return Gene, Location, Direction, 0 ,0, 0
+        return Gene, Location, Direction, None, None, None, None
 
     else:
 
@@ -142,7 +142,7 @@ def Azimuth_Guides(Gene_Seq, PAM_Seq, Guides_Cutoff, Usage):
         #Combine the two guides
         Guides = CombinetoStr(Gene1, Gene2)
 
-        return Guides, Position, Direction, 0, 0, 0
+        return Guides, Position, Direction, None, None, None, None
 
 def ClosestDiff(myList, myNumber):
     pos = bisect_left(myList, myNumber)
