@@ -70,8 +70,6 @@ if __name__ == "__main__":
                 worksheet.write(row + 1,col + 3 , "ORF Sequence: ")
                 worksheet.write(row + 1,col + 10, str(ORF))
                 Guides_Listed = 0
-                print("Target_Guides[ORF_Num + i]")
-                print(Target_Guides[ORF_Num + i])
                 for j in range(len(Target_Guides[ORF_Num + i])):
                     if (- Met_Distance[i][j][0] > Position_List[i][j]):
                         continue
