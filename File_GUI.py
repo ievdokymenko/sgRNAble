@@ -55,7 +55,7 @@ class GUI(object):
 
         #If this is a purpose structure, run this code.
         if (Type == "PURPOSE"):
-            Uses = ["CRISPRi on a Gene", "CRISPRi Screening", "CRISPRa on a Gene"]
+            Uses = ["CRISPRi on a Gene", "CRISPRi Screening", "CRISPRa on a Gene", "Guide Screening"]
             Uses_Var = StringVar(self.Win)
             Uses_Var.set("CRISPRi on a Gene")
             self.Use = Uses_Var
@@ -130,10 +130,11 @@ def Get_Sequence():
                 Targets = []
                 for contig in SeqIO.parse(Program.Files[0][i], Program.Filetypes[0].get().lower()):
                     Targets.append(contig)
-            if(Program.Use.get() == "CRISPRi Screening"):
-                Genome = None
-                break
+                if(Program.Use.get() == "CRISPRi Screening"):
+                    Genome = None
+                    break
             elif not(Genome_Created):
+                print()
                 Genome = SeqIO.read(Program.Files[0][i], Program.Filetypes[i].get().lower())
                 Genome_Created = True
             else:

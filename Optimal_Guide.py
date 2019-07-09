@@ -42,6 +42,21 @@ if __name__ == "__main__":
 
     Target_Seqs, Genome, Usage = Get_Sequence()
 
+    if Usage == "Guide Screening":
+        #Convert all Sequences into Strings
+        Target_Seqs = list(map(lambda Target_Seqs:str(Target_Seqs.seq),Target_Seqs))
+        Guide_Info = [["NA","NA"]] *len(Target_Seqs)
+
+        #Combine the Genome
+        Genome = Genome.upper() + Genome.upper().reverse_complement()
+        SeqIO.write(Genome, "Total_Genome_Plus_RC", "fasta")
+
+        #Send Data to the model
+        Cas9Calculator=clCas9Calculator(['Total_Genome_Plus_RC'])
+        sgRNA1 = sgRNA(Target_Seqs,Guide_Info, Cas9Calculator)
+        sgRNA1.run()
+        quit()
+
     #Obtain the Guide RNAs from the Target Sequence
     from Azimuth_Finder import * #placed here to avoid multithreading issues with Tkinter (I think)
     PAM = "GG"
