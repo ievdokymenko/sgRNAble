@@ -55,7 +55,7 @@ if __name__ == "__main__":
         Cas9Calculator=clCas9Calculator(['Total_Genome_Plus_RC'])
         sgRNA1 = sgRNA(Target_Seqs,Guide_Info, Cas9Calculator)
         sgRNA1.run()
-        quit()
+        sys.exit()
 
     #Obtain the Guide RNAs from the Target Sequence
     from Azimuth_Finder import * #placed here to avoid multithreading issues with Tkinter (I think)
