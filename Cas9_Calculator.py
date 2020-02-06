@@ -1,8 +1,11 @@
 import scipy.io
+import numpy as np
 import math
 import operator
 from time import time
 from Bio import SeqIO
+import numba as nb
+from numba.decorators import jit, autojit
 PRINT = True
 
 def mers(length):
@@ -96,27 +99,47 @@ class sgRNA(object):
 				num_offsite_targets += len(genomeDictionary[source][fullPAM])
 		print("num offsite targets\n", num_offsite_targets)
 
+		#Convert all off target sequences into a numpy number array
+		nt_pos={'A':0,'T':1,'C':2,'G':3}
+
+		for (source, targets) in genomeDictionary.items():
+			np_dictionary = {}
+			for fullPAM in  self.Cas9Calculator.returnAllPAMs():
+			    off_target_array = [sequence[0] for sequence in genomeDictionary[source][fullPAM]]
+			    Nucleotides = []
+			    for sequence in off_target_array:
+			        seq = []
+			        for nt in sequence:
+			            seq.append(nt_pos[nt])
+			        Nucleotides.append(np.array(seq))
+			    np_Nucleotides = np.array(Nucleotides)
+			    np_dictionary[fullPAM] = np_Nucleotides
+
+		weights = self.Cas9Calculator.weights
+		np_weights = np.array([weight[0]*2.3 for weight in weights])
+
+
 		for gene in self.guide_info:
 			for i,Guide in enumerate(self.guide_info[gene][0]):
 				print(Guide)
 
+				num_guide = np.array([nt_pos[nt] for nt in list(Guide)])
+
 				begin_time = time()
 
 				self.partition_function = 1
-
 				for (source, targets) in genomeDictionary.items():
 					self.targetSequenceEnergetics[source] = {}
 					for fullPAM in self.Cas9Calculator.returnAllPAMs():
-						dG_PAM = self.Cas9Calculator.calc_dG_PAM(fullPAM)
-						#dG_PAM = 0
+						#dG_PAM = self.Cas9Calculator.calc_dG_PAM(fullPAM)
+						dG_PAM = 0
 						#dG_supercoiling= 0
 						dG_supercoiling = self.Cas9Calculator.calc_dG_supercoiling(sigmaInitial=-0.05, targetSequence= 20 * "N")  #only cares about length of sequence
-						for (target_sequence, targetPosition) in genomeDictionary[source][fullPAM]:
-							dG_exchange = self.Cas9Calculator.calc_dG_exchange(Guide, target_sequence)
-							#dG_exchange = 0
+						for (off_target_seq, targetPosition) in genomeDictionary[source][fullPAM]:
+							dG_exchange = 0
+							#dG_exchange = self.Cas9Calculator.QuickCalc_Exchange_Energy_Numba(num_guide, off_target_seq, np_weights)
 							dG_target = dG_PAM + dG_supercoiling + dG_exchange
-
-							self.targetSequenceEnergetics[source][targetPosition] = {'sequence': target_sequence,
+							self.targetSequenceEnergetics[source][targetPosition] = {'sequence': off_target_seq,
 																					 'dG_PAM': dG_PAM,
 																					 'full_PAM': fullPAM,
 																					 'dG_exchange': dG_exchange,
@@ -263,23 +286,13 @@ class clCas9Calculator(object):
 			dG+=w1*dG1+w2*dG2
 		return float(dG)
 
-	def QuickCalc_Exchange_Energy(self,crRNA,TargetSeq):
-		nt_pos={'A':0,'T':1,'C':2,'G':3,'a':0,'t':1,'c':2,'g':3}
+	@jit(nopython = True)
+	def QuickCalc_Exchange_Energy_Numba(self,guide,off_target_seq, np_weights):
 		dG=0
-		RNA=''
-		DNA=''
-		self.nt_mismatch_in_first8=0
-		for i in range(0,len(crRNA)):
-			pos=20-i
-			w1=self.weights[pos]
-			if nt_pos[crRNA[i]]==nt_pos[TargetSeq[i]]:
-				dG1=0
-			else:
-				# using a bioinformatics search approach to find sequences with up to x mismatches
-				dG1=2.3 # kcal/mol
-				if pos<=8:
-					self.nt_mismatch_in_first8=self.nt_mismatch_in_first8+1
-			dG+=w1*dG1
+		for i in range(len(guide)):
+		    pos=20-i
+		    if  guide[i] != off_target_seq[i]:
+		        dG+=np_weights[pos]
 		return float(dG)
 
 	def calc_dG_PAM(self, PAM_full_seq):
